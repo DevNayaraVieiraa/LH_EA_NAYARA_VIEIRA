@@ -14,7 +14,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # Importando a classe do dashboard principal
-from dashboard_banvic import BanVicDashboard
+from dashboard_banvic_csv import BanVicDashboard
 
 # Inicializando a aplicação Dash
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
