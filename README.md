@@ -95,4 +95,8 @@ Dashboard de KPIs: Painel interativo em uma ferramenta de BI, permitindo a visua
 Vídeo Explicativo: Gravação curta detalhando o planejamento e a execução de todas as atividades do desafio.
 
 💡 Conclusão e Recomendações
+<<<<<<< HEAD
 Com base nas análises, foi possível gerar insights valiosos e propor recomendações estratégicas para o BanVic, demonstrando como a análise de dados pode direcionar decisões mais assertivas, otimizar a performance das agências e aprimorar a segmentação de clientes. Este projeto piloto serve como um forte argumento para convencer a diretoria sobre o potencial de uma área de Business Intelligence na empresa.
+=======
+Com base nas análises, foi possível gerar insights valiosos e propor recomendações estratégicas para o BanVic, demonstrando como a análise de dados pode direcionar decisões mais assertivas, otimizar a performance das agências e aprimorar a segmentação de clientes. Este projeto piloto serve como um forte argumento para convencer a diretoria sobre o potencial de uma área de Business Intelligence na empresa.
+>>>>>>> 1a0dbe4 (Adiciona README.md com a descrição do projeto)
