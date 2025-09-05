@@ -99,4 +99,8 @@ Vídeo Explicativo: Gravação curta detalhando o planejamento e a execução de
 Com base nas análises, foi possível gerar insights valiosos e propor recomendações estratégicas para o BanVic, demonstrando como a análise de dados pode direcionar decisões mais assertivas, otimizar a performance das agências e aprimorar a segmentação de clientes. Este projeto piloto serve como um forte argumento para convencer a diretoria sobre o potencial de uma área de Business Intelligence na empresa.
 =======
 Com base nas análises, foi possível gerar insights valiosos e propor recomendações estratégicas para o BanVic, demonstrando como a análise de dados pode direcionar decisões mais assertivas, otimizar a performance das agências e aprimorar a segmentação de clientes. Este projeto piloto serve como um forte argumento para convencer a diretoria sobre o potencial de uma área de Business Intelligence na empresa.
+<<<<<<< HEAD
 >>>>>>> 7d96cad3dc362146ce185ea690b1dc986a343db9
+=======
+>>>>>>> 1a0dbe4 (Adiciona README.md com a descrição do projeto)
+>>>>>>> temp-trabalho
