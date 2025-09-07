@@ -1,6 +1,6 @@
-# 📊 Projeto de Análise de Dados - Desafio BanVic
+# 📊 Projeto de Análise de Dados - Desafio BanVic 🏦
 
-## 🏦 Contexto: A Jornada de Dados do Banco Vitória (BanVic)
+## Contexto: A Jornada de Dados do Banco Vitória (BanVic)
 
 Este projeto simula um desafio de analytics para o Banco Vitória (BanVic), uma instituição financeira fundada em São Paulo em 2010. Com uma visão inovadora e uma equipe de 100 colaboradores, o BanVic busca amadurecer sua cultura de dados para elevar a organização a um novo patamar.
 
@@ -24,68 +24,111 @@ Para guiar a análise e demonstrar o potencial do projeto, buscamos responder à
 
 ## 🛠️ Ferramentas Utilizadas
 
-Para a execução deste projeto, foram utilizadas as seguintes tecnologias:
+Para a execução deste projeto, foram utilizadas as seguintes tecnologias e ferramentas:
 
-- **Linguagem de Programação**: Python (Pandas, Matplotlib, Seaborn)
-- **Ferramenta de BI**: Power BI
-- **Ambiente de Desenvolvimento**: VS Code
-- **Controle de Versão**: Git/GitHub
-- **Dados Externos**: API do Banco Central do Brasil
+- **Linguagem de Programação**: Python
+  - Pandas (manipulação de dados)
+  - Matplotlib e Seaborn (visualizações)
+  - Requests (APIs externas)
+- **Ferramenta de BI**: Power BI (dashboard interativo)
+- **Ambiente de Desenvolvimento**: Jupyter Notebook
+- **Banco de Dados**: SQLite para consultas locais
+- **Dados Externos**: API do Banco Central do Brasil (cotação USD/BRL)
+- **Outros**: Excel para validações pontuais
 
 ## 📂 Estrutura do Repositório
 
+O projeto está organizado da seguinte forma para facilitar a navegação e o entendimento:
+
 ```
-├── scripts/
-│   ├── fix_csv_issues.py                    # Script para diagnóstico e correção de dados
-│   ├── banvic_powerbi_integration_fixed.py  # Pipeline de preparação para Power BI
-│   └── get_taxa_cambio.py                   # Extração de dados do Banco Central
-├── dashboard/
-│   └── Dashboard_BanVic_Final.pbix          # Dashboard Power BI
+├── dados/
+│   ├── raw/                    # Dados brutos originais do desafio
+│   └── processed/              # Dados tratados e prontos para análise
+├── notebooks/
+│   └── 01_analise_exploratoria.ipynb  # Notebook com toda a análise passo a passo
 ├── relatorio/
-│   └── Relatorio_Final_BanVic.pdf           # Relatório completo da análise
-└── README.md                                # Documentação do projeto
+│   └── Relatorio_Final_BanVic.pdf     # Relatório final em PDF com as conclusões
+├── dashboard/
+│   └── Dashboard_BanVic.pbix          # Dashboard Power BI desenvolvido
+└── README.md                          # Documentação do projeto
 ```
 
 ## 📈 Análises e Entregáveis
 
-Este projeto compreende as seguintes entregas:
+Este projeto compreende as seguintes entregas, conforme solicitado no desafio:
 
-1. **Análise Exploratória e Definição de KPIs**: Investigação inicial dos dados para entender sua estrutura e definir os principais indicadores de negócio.
+### 1. **Análise Exploratória e Argumentação**
+Investigação inicial dos dados para entender sua estrutura, qualidade e potencial para responder às perguntas de negócio. Desenvolvimento de argumentos para convencer a Diretora Comercial sobre o valor de uma área de BI.
 
-2. **Construção da dim_dates**: Criação de uma dimensão de datas para permitir análises temporais robustas, como performance por dia da semana e validação da hipótese dos meses pares/ímpares.
+### 2. **Definição de Indicadores (KPIs)**
+Estabelecimento dos principais indicadores de performance que respondem às demandas estratégicas do banco, incluindo métricas de volume, valor e performance temporal.
 
-3. **Enriquecimento com Dados Externos**: Análise de correlação entre a cotação do dólar (Banco Central do Brasil) e as transações do BanVic.
+### 3. **Construção da Dimensão de Datas**
+Criação de uma tabela dim_dates robusta para permitir análises temporais avançadas, incluindo:
+- Análise por dia da semana
+- Validação da hipótese de meses pares vs ímpares
+- Proposição de análises adicionais com valor de negócio
 
-4. **Ranking de Performance das Agências**: Análise focada no desempenho das agências para identificar as de maior e menor volume de transações.
+### 4. **Enriquecimento com Dados Externos**
+- Integração com dados de cotação do dólar (Banco Central)
+- Análise de correlação entre câmbio e transações
+- Proposição de outras fontes de dados públicos relevantes
 
-5. **Dashboard de KPIs**: Painel interativo em Power BI, permitindo visualização detalhada dos indicadores por data, agência e cliente.
+### 5. **Ranking de Performance das Agências**
+Análise focada no desempenho das agências nos últimos 6 meses para identificar:
+- Top 3 agências com maior volume de transações
+- 3 agências com menor performance
+- Justificativas e recomendações baseadas nos dados
 
-6. **Relatório em PDF**: Documento final consolidando todas as análises, processos de tratamento, conclusões e recomendações estratégicas.
+### 6. **Relatório Executivo em PDF**
+Documento consolidado contendo:
+- Respostas a todas as perguntas do desafio
+- Processos de transformação e tratamento aplicados
+- Dashboard dos principais KPIs
+- Análises para suporte à tomada de decisão
+- Conclusões e recomendações estratégicas para a CEO
+- Justificativa das ferramentas adotadas
 
-## 🔍 Principais Resultados
+### 7. **Vídeo Explicativo**
+Gravação detalhando o planejamento e execução de todas as atividades do desafio.
 
-### KPIs Identificados
-- **Total de Transações**: 3 bilhões
-- **Volume Total Movimentado**: 5E+18
-- **Ticket Médio**: 75,80 trilhões
-- **Agências Ativas**: Múltiplas unidades em operação
+🎥 **[Link do Vídeo Explicativo](INSERIR_LINK_GOOGLE_DRIVE_AQUI)**
 
-### Insights Principais
-- **Agência Digital** lidera o ranking com 33.167 transações
-- **Sexta-feira** apresenta maior média de transações (70M)
-- **Hipótese refutada**: Meses pares não apresentam volume significativamente maior que ímpares
-- **Taxa de câmbio**: Correlação limitada com volume de transações
+## 🔍 Principais Insights Descobertos
 
-## 💡 Conclusão e Recomendações
+### Análise Temporal
+- **Dia da semana com maior volume**: [INSERIR RESULTADO]
+- **Validação da hipótese dos meses pares**: [INSERIR CONCLUSÃO]
 
-Com base nas análises realizadas, foi possível gerar insights valiosos e propor recomendações estratégicas para o BanVic. Os resultados demonstram como a análise de dados pode direcionar decisões mais assertivas, otimizar a performance das agências e aprimorar a segmentação de clientes. Este projeto piloto serve como um forte argumento para convencer a diretoria sobre o potencial de uma área de Business Intelligence na empresa.
+### Performance das Agências
+- **Top 3 agências**: [INSERIR RANKING]
+- **Bottom 3 agências**: [INSERIR RANKING]
 
-### Recomendações Estratégicas
-1. **Foco na Agência Digital**: Investigar fatores de sucesso para replicar em outras unidades
-2. **Otimização de Sextas-feiras**: Alocar recursos adicionais no dia de maior movimento
-3. **Revisão de Estratégias Sazonais**: Ajustar planejamento baseado em dados reais, não suposições
-4. **Investimento em BI**: Implementar cultura data-driven para decisões estratégicas
+### Correlação com Dados Externos
+- **Correlação USD/BRL vs Transações**: [INSERIR RESULTADO]
+- **Outras fontes identificadas**: [LISTAR FONTES PROPOSTAS]
+
+## 💡 Conclusões e Recomendações
+
+Com base nas análises realizadas, foi possível demonstrar o valor tangível que uma cultura orientada a dados pode trazer para o BanVic. Os insights gerados permitem:
+
+- **Otimização operacional** através do entendimento de padrões temporais
+- **Melhoria na alocação de recursos** entre agências
+- **Decisões estratégicas informadas** com base em dados externos
+- **Segmentação mais eficiente** de clientes e produtos
+
+Este projeto piloto serve como um argumento convincente para a implementação de uma área de Business Intelligence robusta no banco, demonstrando que o investimento em dados gera retorno mensurável e sustentável.
+
+## 📋 Como Reproduzir Este Projeto
+
+1. Clone este repositório
+2. Instale as dependências: `pip install pandas matplotlib seaborn requests`
+3. Execute o notebook `01_analise_exploratoria.ipynb`
+4. Abra o dashboard `Dashboard_BanVic.pbix` no Power BI
+5. Consulte o relatório final em PDF para conclusões detalhadas
 
 ---
 
-**Desenvolvido para o Desafio de Engenharia de Analytics - Indicium**
+**Desenvolvido por**: Nayara Vieira  
+**Data**: Setembro 2025  
+**Contexto**: Desafio de Engenharia de Analytics - Lighthouse Program
