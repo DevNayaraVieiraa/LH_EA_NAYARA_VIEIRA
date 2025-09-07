@@ -1,3 +1,6 @@
+# Script de Análise de Dados - Desafio BanVic
+# Autor: Nayara Vieira
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,6 +11,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 class BanVicDashboard:
+    """ Classe para centralizar o carregamento e análise dos dados do BanVic. """
     def __init__(self, data_path='dados/raw/banvic_data/'):
         self.data_path = data_path
         self.df_transacoes = None
@@ -19,19 +23,20 @@ class BanVicDashboard:
         print("🏦 DASHBOARD BANVIC - ANÁLISE DE DADOS")
         print("============================================================")
         
+        # Inicializa a classe e já chama o carregamento dos dados
         self.load_data()
 
     def load_data(self):
-        """Carrega os dados CSV"""
+        """Carrega os 7 arquivos CSV para os dataframes da classe."""
         print("\n📂 Carregando dados...")
         
         try:
-            # Carrega transações (arquivo principal)
+            # Tabela principal de transações
             print("📊 Carregando transações...")
             self.df_transacoes = pd.read_csv(f'{self.data_path}transacoes.csv')
             print("✅ Transações carregadas!")
             
-            # Carrega outros arquivos se existirem
+            # Carrega as dimensões
             if os.path.exists(f'{self.data_path}clientes.csv'):
                 self.df_clientes = pd.read_csv(f'{self.data_path}clientes.csv')
                 print("✅ Clientes carregados!")
@@ -40,10 +45,10 @@ class BanVicDashboard:
                 self.df_agencias = pd.read_csv(f'{self.data_path}agencias.csv')
                 print("✅ Agências carregadas!")
             
-            # Processa as datas IMEDIATAMENTE após carregar
+            # Chamo o tratamento de datas logo em seguida
             self.processar_datas()
             
-            # Tenta carregar dim_dates, se não existir, cria
+            # Se a dim_dates já existir, usa ela. Se não, cria na hora.
             try:
                 self.dim_dates = pd.read_csv(f'{self.data_path}dim_dates.csv')
                 print("✅ Dimensão de datas carregada!")
@@ -60,10 +65,10 @@ class BanVicDashboard:
         print("✅ Dados CSV carregados com sucesso!")
 
     def processar_datas(self):
-        """Processa e corrige todas as datas dos DataFrames"""
+        """Converte as colunas de data para datetime e lida com erros."""
         print("🔄 Processando datas...")
         
-        # Função universal para corrigir datas
+        # Função interna para tentar converter qualquer formato de data que aparecer
         def corrigir_data(date_str):
             if pd.isna(date_str):
                 return pd.NaT
@@ -71,7 +76,7 @@ class BanVicDashboard:
             try:
                 date_str = str(date_str)
                 
-                # Remove microssegundos se existirem
+                # Limpando o formato UTC que às vezes vem com microssegundos
                 if '.' in date_str and 'UTC' in date_str:
                     date_str = date_str.split('.')[0] + ' UTC'
                 
@@ -81,20 +86,19 @@ class BanVicDashboard:
             except Exception:
                 return pd.NaT
         
-        # Processa transações
+        # Aplicando a função nas colunas de data das tabelas
         if self.df_transacoes is not None and 'data_transacao' in self.df_transacoes.columns:
             original_count = len(self.df_transacoes)
             self.df_transacoes['data_transacao'] = self.df_transacoes['data_transacao'].apply(corrigir_data)
             self.df_transacoes = self.df_transacoes.dropna(subset=['data_transacao'])
             
-            # Converte para timezone do Brasil
+            # Ajustando o fuso horário para o de São Paulo
             self.df_transacoes['data_transacao'] = self.df_transacoes['data_transacao'].dt.tz_convert('America/Sao_Paulo')
             
             final_count = len(self.df_transacoes)
             if original_count > final_count:
                 print(f"⚠️ Removidas {original_count - final_count} transações com datas inválidas")
         
-        # Processa clientes
         if self.df_clientes is not None:
             for col in ['data_inclusao', 'data_nascimento']:
                 if col in self.df_clientes.columns:
@@ -103,48 +107,48 @@ class BanVicDashboard:
         print("✅ Datas processadas!")
 
     def create_dim_dates(self):
-        """Cria a dimensão de datas"""
+        """Cria uma tabela calendário completa, baseada na data min/max das transações."""
         if self.df_transacoes is None:
             print("❌ Não é possível criar dim_dates sem dados de transações")
             return
             
         print("📅 Criando dimensão de datas...")
         
-        # Cria range de datas
+        # Pega a data mínima e máxima pra gerar o range completo
         min_date = self.df_transacoes['data_transacao'].min()
         max_date = self.df_transacoes['data_transacao'].max()
         
         print(f"📅 Período dos dados: {min_date.strftime('%d/%m/%Y')} a {max_date.strftime('%d/%m/%Y')}")
         
-        # Cria a dimensão
         date_range = pd.date_range(start=min_date.date(), end=max_date.date(), freq='D')
         
+        # Monta o dataframe da dimensão
         self.dim_dates = pd.DataFrame({
             'data': date_range,
             'ano': date_range.year,
             'mes': date_range.month,
             'dia': date_range.day,
-            'dia_semana': date_range.dayofweek + 1,
+            'dia_semana': date_range.dayofweek + 1, # Segunda = 1, Domingo = 7
             'nome_dia_semana': date_range.day_name(),
             'nome_mes': date_range.month_name(),
             'trimestre': date_range.quarter,
-            'eh_fim_semana': (date_range.dayofweek >= 5).astype(int),
+            'eh_fim_semana': (date_range.dayofweek >= 5).astype(int), # 1 para True, 0 para False
             'eh_mes_par': (date_range.month % 2 == 0).astype(int)
         })
         
-        # Salva a dimensão
+        # Salva a dimensão em um CSV para poder usar depois
         self.dim_dates.to_csv(f'{self.data_path}dim_dates.csv', index=False)
         print("✅ Dimensão de datas criada e salva!")
 
     def show_data_info(self):
-        """Mostra informações básicas dos dados"""
+        """Mostra um resumo rápido dos dados carregados."""
         print("\n📊 INFORMAÇÕES DOS DADOS")
         print("="*50)
         
         if self.df_transacoes is not None:
             print(f"💳 Transações: {len(self.df_transacoes):,} registros")
             
-            # Verifica se a data é datetime
+            # Checa se a coluna de data é do tipo datetime
             if pd.api.types.is_datetime64_any_dtype(self.df_transacoes['data_transacao']):
                 min_date = self.df_transacoes['data_transacao'].min().strftime('%d/%m/%Y')
                 max_date = self.df_transacoes['data_transacao'].max().strftime('%d/%m/%Y')
@@ -165,7 +169,7 @@ class BanVicDashboard:
             print(f"📅 Dimensão de datas: {len(self.dim_dates):,} registros")
 
     def analise_transacoes_por_dia_semana(self):
-        """Análise de transações por dia da semana - CORRIGIDA"""
+        """Calcula e exibe o volume, quantidade e ticket médio por dia da semana."""
         if self.df_transacoes is None:
             print("❌ Dados de transações não disponíveis")
             return
@@ -174,35 +178,30 @@ class BanVicDashboard:
         print("="*50)
         
         try:
-            # Verifica se as datas estão no formato correto
+            # Garante que as datas estão no formato certo pra análise
             if not pd.api.types.is_datetime64_any_dtype(self.df_transacoes['data_transacao']):
                 print("❌ Datas não estão no formato datetime correto")
                 return
             
-            # Cria análise
             df_analise = self.df_transacoes.copy()
             df_analise['nome_dia_semana'] = df_analise['data_transacao'].dt.day_name()
             df_analise['dia_semana_num'] = df_analise['data_transacao'].dt.dayofweek
             
-            # Mapeamento para português
+            # Traduzindo os nomes dos dias para português
             dias_semana_pt = {
-                'Monday': 'Segunda-feira',
-                'Tuesday': 'Terça-feira', 
-                'Wednesday': 'Quarta-feira',
-                'Thursday': 'Quinta-feira',
-                'Friday': 'Sexta-feira',
-                'Saturday': 'Sábado',
-                'Sunday': 'Domingo'
+                'Monday': 'Segunda-feira', 'Tuesday': 'Terça-feira', 
+                'Wednesday': 'Quarta-feira', 'Thursday': 'Quinta-feira',
+                'Friday': 'Sexta-feira', 'Saturday': 'Sábado', 'Sunday': 'Domingo'
             }
             
             df_analise['nome_dia_semana_pt'] = df_analise['nome_dia_semana'].map(dias_semana_pt)
             
-            # Agrupa por dia da semana
+            # Agrupando para fazer os cálculos
             resumo_dias = df_analise.groupby(['nome_dia_semana_pt', 'dia_semana_num']).agg({
                 'valor_transacao': ['count', 'sum', 'mean']
             }).round(2)
             
-            # Achata colunas
+            # Renomeando as colunas depois do .agg()
             resumo_dias.columns = ['Qtd_Transacoes', 'Volume_Total', 'Valor_Medio']
             resumo_dias = resumo_dias.reset_index()
             resumo_dias = resumo_dias.sort_values('dia_semana_num')
@@ -212,7 +211,7 @@ class BanVicDashboard:
             print("📊 Resumo por dia da semana:")
             print(resumo_dias)
             
-            # Identifica os melhores dias
+            # Encontrando o dia com o maior valor para cada métrica
             melhor_dia_qtd = resumo_dias['Qtd_Transacoes'].idxmax()
             melhor_dia_volume = resumo_dias['Volume_Total'].idxmax()
             
@@ -224,7 +223,7 @@ class BanVicDashboard:
             print(f"❌ Erro na análise por dia da semana: {e}")
 
     def verificar_hipotese_meses_pares(self):
-        """Verifica se meses pares têm mais transações - CORRIGIDA"""
+        """Verifica a hipótese de que meses pares têm mais transações."""
         if self.df_transacoes is None:
             print("❌ Dados de transações não disponíveis")
             return
@@ -233,7 +232,6 @@ class BanVicDashboard:
         print("="*50)
         
         try:
-            # Verifica se as datas estão corretas
             if not pd.api.types.is_datetime64_any_dtype(self.df_transacoes['data_transacao']):
                 print("❌ Datas não estão no formato datetime correto")
                 return
@@ -242,7 +240,6 @@ class BanVicDashboard:
             df_analise['mes'] = df_analise['data_transacao'].dt.month
             df_analise['eh_mes_par'] = (df_analise['mes'] % 2 == 0)
             
-            # Análise por tipo de mês
             resumo_meses = df_analise.groupby('eh_mes_par').agg({
                 'valor_transacao': ['count', 'sum', 'mean']
             }).round(2)
@@ -253,7 +250,7 @@ class BanVicDashboard:
             print("📊 Comparação Meses Ímpares vs Pares:")
             print(resumo_meses)
             
-            # Calcula diferenças
+            # Calculando as diferenças para validar a hipótese
             if len(resumo_meses) >= 2:
                 qtd_pares = resumo_meses.loc['Meses Pares', 'Qtd_Transacoes']
                 qtd_impares = resumo_meses.loc['Meses Ímpares', 'Qtd_Transacoes']
@@ -267,7 +264,6 @@ class BanVicDashboard:
                 print(f"📈 Quantidade: {diff_qtd:,.0f} transações")
                 print(f"💰 Volume: R$ {diff_volume:,.2f}")
                 
-                # Resultado da hipótese
                 if diff_qtd > 0:
                     print("✅ HIPÓTESE CONFIRMADA: Meses pares têm mais transações!")
                     print(f"📊 Meses pares têm {abs(diff_qtd):,.0f} transações a mais ({(diff_qtd/qtd_impares*100):.1f}% mais)")
@@ -279,7 +275,7 @@ class BanVicDashboard:
             print(f"❌ Erro na análise de meses pares: {e}")
 
     def ranking_agencias(self):
-        """Análise de performance das agências - MELHORADA"""
+        """Cria e exibe o ranking de agências (Top 3 e Piores 3) dos últimos 6 meses."""
         if self.df_transacoes is None:
             print("❌ Dados de transações não disponíveis")
             return
@@ -288,7 +284,7 @@ class BanVicDashboard:
         print("="*50)
         
         try:
-            # Verifica se precisa fazer join com contas para obter agências
+            # Garante que a coluna 'cod_agencia' está na tabela de transações
             if 'cod_agencia' not in self.df_transacoes.columns:
                 contas_file = f'{self.data_path}contas.csv'
                 if os.path.exists(contas_file):
@@ -306,7 +302,7 @@ class BanVicDashboard:
             else:
                 df_analise = self.df_transacoes.copy()
             
-            # Filtra últimos 6 meses
+            # Definindo a data de corte para pegar só os últimos 6 meses
             if pd.api.types.is_datetime64_any_dtype(df_analise['data_transacao']):
                 data_limite = df_analise['data_transacao'].max() - pd.DateOffset(months=6)
                 df_recente = df_analise[df_analise['data_transacao'] >= data_limite]
@@ -316,7 +312,6 @@ class BanVicDashboard:
                 df_recente = df_analise
                 print("⚠️ Usando todos os dados (não foi possível filtrar por data)")
             
-            # Remove registros sem agência
             df_recente = df_recente.dropna(subset=['cod_agencia'])
             print(f"📊 Registros com agência identificada: {len(df_recente):,}")
             
@@ -324,7 +319,6 @@ class BanVicDashboard:
                 print("❌ Nenhum registro com agência encontrado")
                 return
             
-            # Ranking por agência
             ranking = df_recente.groupby('cod_agencia').agg({
                 'valor_transacao': ['count', 'sum', 'mean']
             }).round(2)
@@ -338,7 +332,7 @@ class BanVicDashboard:
             print(f"\n⚠️ TOP 3 PIORES AGÊNCIAS:")
             print(ranking.tail(3))
             
-            # Estatísticas gerais
+            # Algumas estatísticas extras para a análise
             media_geral = ranking['Qtd_Transacoes'].mean()
             print(f"\n📊 ESTATÍSTICAS GERAIS:")
             print(f"📈 Média geral de transações por agência: {media_geral:.0f}")
@@ -350,7 +344,7 @@ class BanVicDashboard:
             print(f"📈 Agências acima da média: {len(acima_media)} ({len(acima_media)/len(ranking)*100:.1f}%)")
             print(f"📉 Agências abaixo da média: {len(abaixo_media)} ({len(abaixo_media)/len(ranking)*100:.1f}%)")
             
-            # Salva o ranking
+            # Salva o ranking completo em um CSV
             ranking.to_csv(f'{self.data_path}ranking_agencias.csv')
             print(f"💾 Ranking salvo em: ranking_agencias.csv")
             
@@ -360,7 +354,7 @@ class BanVicDashboard:
             traceback.print_exc()
 
 def limpar_arquivos_duplicados(data_path):
-    """Remove arquivos _corrigido duplicados se os originais funcionarem"""
+    """Função de limpeza para remover arquivos com sufixo _corrigido."""
     print("\n🧹 LIMPEZA DE ARQUIVOS DUPLICADOS")
     print("="*40)
     
@@ -371,14 +365,14 @@ def limpar_arquivos_duplicados(data_path):
         
         if os.path.exists(os.path.join(data_path, arquivo_original)):
             try:
-                # Testa se consegue carregar o original
+                # Se o original abrir sem erro, o "_corrigido" não é mais necessário
                 pd.read_csv(os.path.join(data_path, arquivo_original), nrows=1)
                 print(f"🗑️ Removendo: {arquivo} (original funciona)")
                 os.remove(os.path.join(data_path, arquivo))
             except:
                 print(f"📋 Mantendo: {arquivo} (original tem problemas)")
         else:
-            # Renomeia o corrigido para original
+            # Se o original não existe, renomeia o corrigido
             os.rename(
                 os.path.join(data_path, arquivo),
                 os.path.join(data_path, arquivo_original)
@@ -386,24 +380,24 @@ def limpar_arquivos_duplicados(data_path):
             print(f"📝 Renomeado: {arquivo} → {arquivo_original}")
 
 def main():
-    """Função principal"""
+    """Orquestra a execução de todo o script."""
     
     data_path = 'dados/raw/banvic_data/'
     
-    # Verifica se o diretório existe
+    # Checa se a pasta de dados existe antes de começar
     if not os.path.exists(data_path):
         print(f"❌ Diretório não encontrado: {os.path.abspath(data_path)}")
         print("💡 Execute primeiro: python fix_csv_issues.py")
         return
     
-    # Limpa arquivos duplicados
+    # Roda a limpeza antes de tudo
     limpar_arquivos_duplicados(data_path)
     
     try:
-        # Cria o dashboard
+        # Instancia a classe e começa o processo
         dashboard = BanVicDashboard(data_path=data_path)
         
-        # Executa as análises
+        # Roda as análises
         dashboard.show_data_info()
         dashboard.analise_transacoes_por_dia_semana()
         dashboard.verificar_hipotese_meses_pares()
@@ -423,5 +417,6 @@ def main():
         import traceback
         traceback.print_exc()
 
+# Ponto de entrada do script
 if __name__ == "__main__":
     main()

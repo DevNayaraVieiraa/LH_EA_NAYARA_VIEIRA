@@ -1,15 +1,18 @@
+# Ferramenta de diagnóstico e correção de CSVs para o Desafio BanVic
+# Autor: Nayara Vieira
+
 import pandas as pd
 import os
 import numpy as np
 from datetime import datetime
 
 def diagnosticar_arquivos():
-    """Diagnostica os arquivos CSV e a estrutura do projeto"""
+    """Faz uma varredura na pasta do projeto para encontrar os arquivos CSV."""
     
     print("🔍 DIAGNÓSTICO DO PROJETO")
     print("="*50)
     
-    # Lista todos os arquivos CSV na pasta atual e subpastas
+    # Varre o diretório atual e todas as subpastas atrás de arquivos .csv
     csv_files = []
     for root, dirs, files in os.walk('.'):
         for file in files:
@@ -22,7 +25,7 @@ def diagnosticar_arquivos():
     for file in csv_files:
         print(f"   📎 {file}")
     
-    # Verifica a estrutura esperada
+    # Checa se a estrutura de pastas que o script principal espera está no lugar
     expected_path = 'dados/raw/banvic_data/'
     print(f"\n📂 Estrutura esperada: {os.path.abspath(expected_path)}")
     print(f"📂 Existe? {os.path.exists(expected_path)}")
@@ -30,19 +33,19 @@ def diagnosticar_arquivos():
     return csv_files
 
 def analisar_csv(file_path):
-    """Analisa um arquivo CSV específico"""
+    """Abre um CSV, lê as primeiras linhas e mostra um resumo das colunas."""
     
     print(f"\n🔍 ANALISANDO: {file_path}")
     print("-" * 40)
     
     try:
-        # Carrega apenas as primeiras linhas para análise
+        # Lendo só o comecinho do arquivo pra não carregar tudo na memória
         df = pd.read_csv(file_path, nrows=5)
         
         print(f"📊 Colunas: {list(df.columns)}")
         print(f"📏 Tamanho da amostra: {df.shape}")
         
-        # Se tiver coluna de data, analisa o formato
+        # Procura por colunas que parecem ser de data e mostra uns exemplos
         date_columns = [col for col in df.columns if 'data' in col.lower() or 'date' in col.lower()]
         
         for date_col in date_columns:
@@ -59,13 +62,13 @@ def analisar_csv(file_path):
         return []
 
 def corrigir_formato_data(file_path, date_column, output_path=None):
-    """Corrige o formato da data em um arquivo CSV"""
+    """Tenta corrigir formatos de data 'quebrados' em um arquivo CSV completo."""
     
     print(f"\n🔧 CORRIGINDO DATAS: {file_path}")
     print("-" * 40)
     
     try:
-        # Carrega o arquivo
+        # Dessa vez, carrega o arquivo inteiro pra valer
         df = pd.read_csv(file_path)
         print(f"📊 Registros carregados: {len(df)}")
         
@@ -73,35 +76,33 @@ def corrigir_formato_data(file_path, date_column, output_path=None):
             print(f"❌ Coluna '{date_column}' não encontrada!")
             return False
         
-        # Função para limpar e converter datas
+        # Minha função para tentar arrumar a bagunça das datas
         def clean_date(date_str):
             if pd.isna(date_str):
                 return pd.NaT
             
             try:
-                # Converte para string se não for
+                # Garante que é string pra poder manipular
                 date_str = str(date_str)
                 
-                # Remove microssegundos problemáticos
+                # O formato com 'UTC' e microssegundos costuma dar problema, então limpo ele
                 if '.' in date_str and 'UTC' in date_str:
-                    # Pega apenas até os segundos
                     date_part = date_str.split('.')[0]
-                    # Adiciona UTC de volta
                     date_str = date_part + ' UTC'
                 
-                # Tenta converter
+                # Tenta a conversão
                 return pd.to_datetime(date_str, utc=True)
                 
             except Exception as e:
                 print(f"⚠️ Erro ao processar data '{date_str}': {e}")
                 return pd.NaT
         
-        # Aplica a correção
+        # Aplica a função de limpeza na coluna
         print("🔄 Processando datas...")
         original_count = len(df)
         df[date_column] = df[date_column].apply(clean_date)
         
-        # Remove registros com datas inválidas
+        # Joga fora as linhas que não foi possível converter
         df = df.dropna(subset=[date_column])
         final_count = len(df)
         
@@ -110,7 +111,7 @@ def corrigir_formato_data(file_path, date_column, output_path=None):
         print(f"📊 Registros válidos: {final_count}")
         print(f"📊 Registros removidos: {original_count - final_count}")
         
-        # Salva o arquivo corrigido
+        # Salva uma nova versão do arquivo com o sufixo _corrigido
         if output_path is None:
             output_path = file_path.replace('.csv', '_corrigido.csv')
         
@@ -124,7 +125,7 @@ def corrigir_formato_data(file_path, date_column, output_path=None):
         return False
 
 def criar_estrutura_pastas():
-    """Cria a estrutura de pastas necessária"""
+    """Garante que as pastas /dados/raw e /dados/processed existam."""
     
     print("\n📁 CRIANDO ESTRUTURA DE PASTAS")
     print("="*40)
@@ -143,14 +144,14 @@ def criar_estrutura_pastas():
     print("✅ Estrutura criada com sucesso!")
 
 def mover_csvs_para_estrutura():
-    """Move arquivos CSV para a estrutura correta"""
+    """Pega os CSVs da raiz do projeto e copia para dados/raw/banvic_data."""
     
     print("\n🚚 ORGANIZANDO ARQUIVOS CSV")
     print("="*40)
     
     target_dir = 'dados/raw/banvic_data/'
     
-    # Encontra CSVs na raiz
+    # Procura arquivos CSV soltos na pasta principal
     csv_files = [f for f in os.listdir('.') if f.endswith('.csv')]
     
     if not csv_files:
@@ -162,7 +163,7 @@ def mover_csvs_para_estrutura():
         destination = os.path.join(target_dir, csv_file)
         
         try:
-            # Copia o arquivo (mantém o original)
+            # Copiando em vez de mover, pra ter um backup do original
             import shutil
             shutil.copy2(source, destination)
             print(f"📋 Copiado: {source} → {destination}")
@@ -170,31 +171,31 @@ def mover_csvs_para_estrutura():
             print(f"❌ Erro ao copiar {source}: {e}")
 
 def main():
-    """Função principal de correção"""
+    """Orquestra todo o processo: diagnostica, organiza e corrige os arquivos."""
     
     print("🛠️ FERRAMENTA DE CORREÇÃO - DASHBOARD BANVIC")
     print("="*55)
     
-    # 1. Diagnostica arquivos
+    # Passo 1: Vê o que tem de arquivo na pasta
     csv_files = diagnosticar_arquivos()
     
-    # 2. Cria estrutura se não existir
+    # Passo 2: Cria as pastas se precisar
     criar_estrutura_pastas()
     
-    # 3. Move CSVs se necessário
+    # Passo 3: Move os arquivos pra pasta certa
     if csv_files:
         mover_csvs_para_estrutura()
     
-    # 4. Analisa cada CSV encontrado
+    # Passo 4: Analisa cada arquivo encontrado
     for csv_file in csv_files:
         if os.path.exists(csv_file):
             columns = analisar_csv(csv_file)
             
-            # Se encontrar colunas de data, oferece correção
+            # Se o arquivo parece ter datas, tenta aplicar a correção
             date_columns = [col for col in columns if 'data' in col.lower() or 'date' in col.lower()]
             
             if date_columns:
-                print(f"\n🔧 Deseja corrigir as datas em {csv_file}?")
+                print(f"\n🔧 Tentando corrigir as datas em {csv_file}...")
                 for date_col in date_columns:
                     try:
                         corrigir_formato_data(csv_file, date_col)
@@ -204,9 +205,10 @@ def main():
     print("\n" + "="*55)
     print("✅ CORREÇÃO CONCLUÍDA!")
     print("💡 PRÓXIMOS PASSOS:")
-    print("1. Execute o dashboard novamente")
-    print("2. Se ainda houver erros, verifique os logs acima")
+    print("1. Execute o script principal de análise/ETL novamente")
+    print("2. Verifique os logs acima para ver se algo deu errado")
     print("3. Considere usar os arquivos '_corrigido.csv' se foram criados")
 
+# Ponto de entrada do script
 if __name__ == "__main__":
     main()

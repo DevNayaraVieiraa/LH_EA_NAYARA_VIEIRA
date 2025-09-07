@@ -1,6 +1,6 @@
-# banvic_powerbi_integration_fixed.py
-# Script CORRIGIDO para integração dos dados do BanVic com Power BI
-# Salve este arquivo na pasta: C:\Users\Nayara\Desktop\LH_EA_NAYARA_VIEIRA\
+# Script de ETL para o desafio BanVic - Preparação dos dados para o Power BI
+# Autor: Nayara Vieira
+# Data: 07/09/2025
 
 import pandas as pd
 import numpy as np
@@ -12,11 +12,11 @@ warnings.filterwarnings('ignore')
 
 def safe_date_conversion(date_series, column_name="data"):
     """
-    Função para converter datas de forma segura, lidando com diferentes formatos
+    Converte uma coluna de data para o formato datetime, tentando vários formatos.
     """
     print(f"  🔄 Processando {column_name}...")
     
-    # Primeiro, tentar inferir automaticamente
+    # Tenta converter a data de forma automática, que é mais rápido
     try:
         converted = pd.to_datetime(date_series, infer_datetime_format=True, errors='coerce')
         valid_count = converted.notna().sum()
@@ -25,7 +25,7 @@ def safe_date_conversion(date_series, column_name="data"):
     except Exception as e:
         print(f"  ⚠️ Erro na conversão automática de {column_name}: {e}")
         
-        # Fallback: tentar diferentes formatos manualmente
+        # Se a conversão automática falhar, tenta na mão com os formatos mais comuns
         formats_to_try = [
             '%Y-%m-%d %H:%M:%S UTC',
             '%Y-%m-%d %H:%M:%S.%f UTC', 
@@ -53,34 +53,32 @@ def safe_date_conversion(date_series, column_name="data"):
 
 def load_banvic_data():
     """
-    Carrega e processa todos os dados do BanVic para uso no Power BI
+    Função principal que carrega, limpa, junta e salva os dados do BanVic.
     """
-    # Definir caminhos
+    # Definindo os caminhos das pastas pra organizar o projeto
     base_path = Path(r"C:\Users\Nayara\Desktop\LH_EA_NAYARA_VIEIRA")
     data_path = base_path / "dados" / "raw" / "banvic_data"
     processed_path = base_path / "dados" / "processed"
     
-    # Criar pasta processed se não existir
+    # Garante que a pasta de destino exista
     processed_path.mkdir(parents=True, exist_ok=True)
     
     print("🏦 Carregando dados do BanVic para Power BI...")
     print("="*60)
     
-    # 1. CARREGAR DADOS PRINCIPAIS
+    # 1. Leitura dos arquivos CSV originais
     try:
-        # Transações (tabela principal)
+        # Tabela Fato: transacoes.csv
         df_transacoes = pd.read_csv(data_path / "transacoes.csv")
         print(f"✅ Transações carregadas: {len(df_transacoes):,} registros")
         
-        # Clientes
+        # Dimensões
         df_clientes = pd.read_csv(data_path / "clientes.csv")
         print(f"✅ Clientes carregados: {len(df_clientes):,} registros")
         
-        # Agências
         df_agencias = pd.read_csv(data_path / "agencias.csv")
         print(f"✅ Agências carregadas: {len(df_agencias):,} registros")
         
-        # Contas
         df_contas = pd.read_csv(data_path / "contas.csv")
         print(f"✅ Contas carregadas: {len(df_contas):,} registros")
         
@@ -94,23 +92,22 @@ def load_banvic_data():
     print("\n📅 PROCESSAMENTO DE DATAS")
     print("="*40)
     
-    # 2. PROCESSAR DATAS DE FORMA SEGURA
-    # Transações
+    # 2. Tratamento da coluna de data_transacao
     df_transacoes['data_transacao'] = safe_date_conversion(
         df_transacoes['data_transacao'], 
         "data_transacao"
     )
     
-    # Remover timezone se presente
+    # O Power BI pode se confundir com timezone, melhor remover
     if pd.api.types.is_datetime64_any_dtype(df_transacoes['data_transacao']):
         if df_transacoes['data_transacao'].dt.tz is not None:
             df_transacoes['data_transacao'] = df_transacoes['data_transacao'].dt.tz_localize(None)
     
-    # Apenas processar datas se a conversão funcionou
+    # Checa se a data foi convertida antes de criar novas colunas
     if pd.api.types.is_datetime64_any_dtype(df_transacoes['data_transacao']):
         print("  🔧 Criando colunas derivadas de data...")
         
-        # Adicionar colunas de tempo úteis para o Power BI
+        # Quebrando a data em várias colunas para facilitar os filtros no PBI
         df_transacoes['ano'] = df_transacoes['data_transacao'].dt.year
         df_transacoes['mes'] = df_transacoes['data_transacao'].dt.month
         df_transacoes['dia'] = df_transacoes['data_transacao'].dt.day
@@ -119,7 +116,7 @@ def load_banvic_data():
         df_transacoes['trimestre'] = df_transacoes['data_transacao'].dt.quarter
         df_transacoes['semana_ano'] = df_transacoes['data_transacao'].dt.isocalendar().week
         
-        # Traduzir dias da semana para português
+        # Traduzindo para português pra ficar mais fácil de ler no relatório
         dias_pt = {
             'Monday': 'Segunda-feira', 'Tuesday': 'Terça-feira', 
             'Wednesday': 'Quarta-feira', 'Thursday': 'Quinta-feira',
@@ -127,7 +124,6 @@ def load_banvic_data():
         }
         df_transacoes['dia_semana_pt'] = df_transacoes['dia_semana'].map(dias_pt).fillna(df_transacoes['dia_semana'])
         
-        # Traduzir meses para português
         meses_pt = {
             'January': 'Janeiro', 'February': 'Fevereiro', 'March': 'Março',
             'April': 'Abril', 'May': 'Maio', 'June': 'Junho',
@@ -136,7 +132,7 @@ def load_banvic_data():
         }
         df_transacoes['mes_nome_pt'] = df_transacoes['mes_nome'].map(meses_pt).fillna(df_transacoes['mes_nome'])
         
-        # Identificar se é mês par ou ímpar
+        # Coluna para a análise de meses pares vs. ímpares
         df_transacoes['mes_tipo'] = df_transacoes['mes'].apply(
             lambda x: 'Par' if pd.notna(x) and x % 2 == 0 else 'Ímpar'
         )
@@ -147,9 +143,9 @@ def load_banvic_data():
     print("\n🔗 FAZENDO JOINS DOS DADOS")
     print("="*40)
     
-    # 3. FAZER JOINS NECESSÁRIOS
+    # 3. Juntando tudo em uma tabela só (modelo desnormalizado para o CSV final)
     try:
-        # Join transações com contas para obter agência
+        # Transações <- Contas (para pegar cod_agencia e cod_cliente)
         df_transacoes_completo = df_transacoes.merge(
             df_contas[['num_conta', 'cod_agencia', 'cod_cliente']], 
             on='num_conta', 
@@ -157,9 +153,9 @@ def load_banvic_data():
         )
         print(f"✅ Join transações + contas: {len(df_transacoes_completo):,} registros")
         
-        # Join com clientes para obter informações do cliente
+        # Join com a tabela de clientes
         colunas_clientes = [col for col in ['cod_cliente', 'primeiro_nome', 'ultimo_nome', 'tipo_cliente', 'endereco'] 
-                          if col in df_clientes.columns]
+                            if col in df_clientes.columns]
         
         df_transacoes_completo = df_transacoes_completo.merge(
             df_clientes[colunas_clientes], 
@@ -168,9 +164,9 @@ def load_banvic_data():
         )
         print(f"✅ Join + clientes: {len(df_transacoes_completo):,} registros")
         
-        # Join com agências para obter informações da agência
+        # Join com a tabela de agências
         colunas_agencias = [col for col in ['cod_agencia', 'nome', 'cidade', 'uf', 'tipo_agencia'] 
-                          if col in df_agencias.columns]
+                            if col in df_agencias.columns]
         
         df_transacoes_completo = df_transacoes_completo.merge(
             df_agencias[colunas_agencias], 
@@ -180,7 +176,7 @@ def load_banvic_data():
         )
         print(f"✅ Join + agências: {len(df_transacoes_completo):,} registros")
         
-        # Renomear colunas para clareza no Power BI
+        # Renomeando colunas para evitar conflitos de nome e melhorar a clareza
         if 'nome' in df_transacoes_completo.columns:
             df_transacoes_completo = df_transacoes_completo.rename(columns={'nome': 'nome_agencia'})
         if 'endereco' in df_transacoes_completo.columns:
@@ -193,9 +189,9 @@ def load_banvic_data():
     print("\n📊 CRIANDO MÉTRICAS CALCULADAS")
     print("="*40)
     
-    # 4. CRIAR MÉTRICAS CALCULADAS
+    # 4. Criando algumas colunas calculadas direto no script
     try:
-        # Categoria de valor da transação
+        # Criando faixas de valor pra facilitar a análise
         if 'valor_transacao' in df_transacoes_completo.columns:
             df_transacoes_completo['categoria_valor'] = pd.cut(
                 df_transacoes_completo['valor_transacao'],
@@ -211,19 +207,19 @@ def load_banvic_data():
     print("\n📅 CRIANDO DIMENSÃO DE DATAS")
     print("="*40)
     
-    # 5. CRIAR DIMENSÃO DE DATAS
+    # 5. Criando a dim_datas separada (melhor prática de BI)
     if pd.api.types.is_datetime64_any_dtype(df_transacoes_completo['data_transacao']):
         try:
-            # Obter período completo dos dados
+            # Pega a data mínima e máxima das transações pra criar o range
             data_min = df_transacoes_completo['data_transacao'].min()
             data_max = df_transacoes_completo['data_transacao'].max()
             
             print(f"  📅 Período: {data_min.date()} a {data_max.date()}")
             
-            # Criar range completo de datas
+            # Cria um range de todas as datas no período, sem faltar nenhuma
             datas_completas = pd.date_range(start=data_min.date(), end=data_max.date(), freq='D')
             
-            # Criar dimensão de datas
+            # Monta o DataFrame da dimensão de datas
             dim_dates = pd.DataFrame({
                 'data': datas_completas,
                 'ano': datas_completas.year,
@@ -237,19 +233,7 @@ def load_banvic_data():
                 'semestre': ((datas_completas.quarter + 1) // 2).astype(int)
             })
             
-            # Traduzir para português
-            dias_pt = {
-                'Monday': 'Segunda-feira', 'Tuesday': 'Terça-feira', 
-                'Wednesday': 'Quarta-feira', 'Thursday': 'Quinta-feira',
-                'Friday': 'Sexta-feira', 'Saturday': 'Sábado', 'Sunday': 'Domingo'
-            }
-            meses_pt = {
-                'January': 'Janeiro', 'February': 'Fevereiro', 'March': 'Março',
-                'April': 'Abril', 'May': 'Maio', 'June': 'Junho',
-                'July': 'Julho', 'August': 'Agosto', 'September': 'Setembro',
-                'October': 'Outubro', 'November': 'Novembro', 'December': 'Dezembro'
-            }
-            
+            # Traduz as colunas de data para português
             dim_dates['dia_semana_pt'] = dim_dates['dia_semana'].map(dias_pt)
             dim_dates['mes_nome_pt'] = dim_dates['mes_nome'].map(meses_pt)
             dim_dates['mes_tipo'] = dim_dates['mes'].apply(lambda x: 'Par' if x % 2 == 0 else 'Ímpar')
@@ -258,12 +242,7 @@ def load_banvic_data():
             
         except Exception as e:
             print(f"⚠️ Erro ao criar dimensão de datas: {e}")
-            # Criar dimensão simples como fallback
-            dim_dates = pd.DataFrame({
-                'data': [datetime.now().date()],
-                'ano': [datetime.now().year],
-                'mes': [datetime.now().month]
-            })
+            dim_dates = pd.DataFrame()
     else:
         print("⚠️ Não foi possível criar dimensão de datas (data_transacao não é datetime)")
         dim_dates = pd.DataFrame()
@@ -271,14 +250,14 @@ def load_banvic_data():
     print("\n💾 SALVANDO ARQUIVOS PARA POWER BI")
     print("="*40)
     
-    # 6. SALVAR ARQUIVOS PARA POWER BI
+    # 6. Exportando os arquivos CSV que serão usados no Power BI
     try:
-        # Salvar arquivo principal de transações
+        # Tabela principal com tudo junto
         output_file = processed_path / "transacoes_powerbi.csv"
         df_transacoes_completo.to_csv(output_file, index=False, encoding='utf-8-sig')
         print(f"✅ {output_file.name}: {len(df_transacoes_completo):,} registros")
         
-        # Salvar dimensões separadas
+        # Dimensões separadas para montar o modelo estrela no PBI
         df_clientes.to_csv(processed_path / "dim_clientes.csv", index=False, encoding='utf-8-sig')
         print(f"✅ dim_clientes.csv: {len(df_clientes):,} registros")
         
@@ -296,7 +275,7 @@ def load_banvic_data():
     print("\n📈 CRIANDO RESUMOS EXECUTIVOS")
     print("="*40)
     
-    # 7. CRIAR RESUMOS EXECUTIVOS
+    # 7. Gerando alguns resumos pré-calculados (opcional, mas pode ser útil para validar)
     try:
         if 'dia_semana_pt' in df_transacoes_completo.columns and 'valor_transacao' in df_transacoes_completo.columns:
             # Resumo por dia da semana
@@ -345,7 +324,7 @@ def load_banvic_data():
     print("✅ PROCESSAMENTO CONCLUÍDO!")
     print("="*60)
     
-    # Estatísticas finais
+    # Algumas estatísticas pra conferir no final
     if pd.api.types.is_datetime64_any_dtype(df_transacoes_completo['data_transacao']):
         data_min = df_transacoes_completo['data_transacao'].min()
         data_max = df_transacoes_completo['data_transacao'].max()
@@ -361,19 +340,19 @@ def load_banvic_data():
     print(f"🏢 Total de agências: {len(df_agencias):,}")
     
     print(f"\n📁 Arquivos criados em: {processed_path}")
-    print("   - transacoes_powerbi.csv (arquivo principal)")
-    print("   - dim_clientes.csv")
-    print("   - dim_agencias.csv") 
+    print("  - transacoes_powerbi.csv (arquivo principal)")
+    print("  - dim_clientes.csv")
+    print("  - dim_agencias.csv") 
     if not dim_dates.empty:
-        print("   - dim_datas.csv")
-    print("   - resumo_dias_semana.csv")
-    print("   - resumo_meses_tipo.csv")
-    print("   - resumo_agencias_6m.csv")
+        print("  - dim_datas.csv")
+    print("  - resumo_dias_semana.csv")
+    print("  - resumo_meses_tipo.csv")
+    print("  - resumo_agencias_6m.csv")
     print("="*60)
     
     return df_transacoes_completo
 
-# Executar se chamado diretamente
+# Bloco principal para rodar o script todo
 if __name__ == "__main__":
     print("🚀 INICIANDO INTEGRAÇÃO BANVIC + POWER BI")
     print("="*60)
