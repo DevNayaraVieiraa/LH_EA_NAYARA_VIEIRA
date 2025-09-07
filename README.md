@@ -32,14 +32,15 @@ Realizar uma análise nos dados de crédito do BanVic e responder a perguntas-ch
 
 ```
 ├── dados/
-│   ├── raw/                    # Dados brutos
-│   └── processed/              # Dados tratados
+│   ├── raw/                  # Dados brutos
+│   └── processed/            # Dados tratados
+├── dashboard/
+│   └── Dashboard_BanVic.pbix   # Arquivo do dashboard final
+├── img/                      # Imagens e prints para o README
 ├── notebooks/
 │   └── 01_analise_exploratoria.ipynb
 ├── relatorio/
 │   └── Relatorio_Final_BanVic.pdf
-├── dashboard/
-│   └── Dashboard_BanVic.pbix
 └── README.md
 ```
 
