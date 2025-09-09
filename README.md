@@ -1,115 +1,163 @@
 # 📊 Projeto de Análise de Dados - Desafio BanVic 🏦
 
-## Contexto
+## 🏢 Contexto do Negócio
 
-O **Banco Vitória (BanVic)** é uma instituição financeira fundada em 2010, em São Paulo. Hoje conta com cerca de 100 colaboradores e busca amadurecer sua cultura de dados para apoiar decisões estratégicas.
+O **Banco Vitória (BanVic)** é uma instituição financeira fundada em 2010, em São Paulo. Conta com cerca de 100 colaboradores e hoje busca fortalecer sua cultura de dados para embasar decisões estratégicas.
 
-A CEO, **Sofia Oliveira**, aposta que dados são essenciais para melhorar operações e a experiência do cliente. Já a Diretora Comercial, **Camila Diniz**, ainda prefere métodos tradicionais de marketing e tem dúvidas sobre o impacto real dessa mudança.
+**Personagens-chave:**
 
-Este projeto simula um piloto de analytics para mostrar, na prática, o valor que o uso de dados pode gerar para o banco.
+**Sofia Oliveira (CEO):** defende o uso de dados para melhorar operações e a experiência do cliente.
 
-## 🎯 O Desafio
+**Camila Diniz (Diretora Comercial):** ainda prefere métodos tradicionais, mas precisa enxergar na prática o valor dos dados.
 
-Realizar uma análise nos dados de crédito do BanVic e responder a perguntas-chave do negócio. O objetivo é criar indicadores, visualizações e insights que convençam a diretoria de que investir em dados traz retorno real.
+**André Tech (Diretor de TI):** busca aplicar análises avançadas para otimizar processos internos.
 
-## ❓ Perguntas de Negócio
+**Lucas Johnson (Analista de Dados): ** idealizou este piloto para provar os ganhos que a análise pode trazer.
 
-1. **Transações no tempo**: Qual o dia da semana com mais transações aprovadas e maior volume financeiro?
-2. **Sazonalidade**: Meses pares têm realmente mais transações que meses ímpares?
-3. **Performance das agências**: Quem está acima e abaixo da média nos últimos 6 meses? Quem são as 3 melhores e as 3 piores?
-4. **Dados externos**: Existe relação entre a cotação do dólar e as transações? Que outros dados públicos podem enriquecer a análise?
+Este projeto é um piloto de **analytics**, criado para demonstrar de forma prática o impacto positivo que a inteligência de dados pode gerar no BanVic.
 
-## 🛠️ Ferramentas
+## 🎯 Objetivo do Desafio
 
-* **Python**: Pandas, Matplotlib, Seaborn, Requests
-* **Power BI**: Dashboard interativo
-* **SQLite**: Consultas locais
-* **Excel**: Validações pontuais
-* **Banco Central (API)**: Cotação USD/BRL
-* **Ambiente**: Jupyter Notebook
+O objetivo deste piloto é analisar de ponta a ponta os dados de crédito do **BanVic** e responder perguntas-chave do negócio. Vamos gerar indicadores, gráficos e insights acionáveis que comprovem para a diretoria que investir em dados traz retorno mensurável.
 
-## 📂 Estrutura do Projeto
+## ❓ Perguntas de Negócio Respondidas
+
+### 🕐 Análise Temporal
+1. **Dia da semana com maior movimento**  
+   - Qual dia concentra mais transações aprovadas e maior volume financeiro?  
+
+2. **Meses pares x meses ímpares**  
+   - Há realmente mais transações em meses pares do que em ímpares?  
+
+### 🏪 Performance Operacional
+3. **Agências acima ou abaixo da média**  
+   - Quais se destacaram nos últimos 6 meses?  
+
+4. **Ranking de desempenho**  
+   - Quem são as 3 melhores e as 3 piores agências?  
+
+### 🌍 Dados Externos
+5. **Impacto do dólar**  
+   - Existe relação entre a cotação USD/BRL e as transações do banco?  
+
+6. **Fontes externas de valor**  
+   - Que outros dados públicos podem enriquecer futuras análises?  
+
+
+## 🛠️ Stack Tecnológica
+
+| Ferramenta            | Finalidade                                                                 |
+|------------------------|----------------------------------------------------------------------------|
+| **Python**             | Limpeza, exploração e análise de dados (Pandas, Matplotlib, Seaborn, Requests) |
+| **Power BI**           | Construção de dashboards interativos para a diretoria                       |
+| **SQLite**             | Consultas locais e validação de dados                                       |
+| **Excel**              | Conferências e validações pontuais                                          |
+| **API Banco Central**  | Coleta da cotação USD/BRL                                                   |
+| **Jupyter Notebook**   | Ambiente para desenvolvimento e documentação da análise                     |
+
+
+## 📂 Estrutura do Repositório
 
 ```
-├── dados/
-│   ├── raw/                  # Dados brutos
-│   └── processed/            # Dados tratados
-├── dashboard/
-│   └── Dashboard_BanVic.pbix   # Arquivo do dashboard final
-├── img/                      # Imagens e prints para o README
-├── notebooks/
-│   └── 01_analise_exploratoria.ipynb
-├── relatorio/
-│   └── Relatorio_Final_BanVic.pdf
+LH_EA_NAYARA_VIEIRA/
+├── 📁 dados/
+│   ├── raw/                     # Dados originais do BanVic
+│   └── processed/               # Dados limpos e transformados
+├── 📁 dashboard/
+│   └── Dashboard_BanVic.pbix    # Dashboard executivo interativo
+├── 📁 img/                      # Visualizações e gráficos
+├── 📁 notebooks/
+│   └── 01_analise_exploratoria.ipynb  # Análise completa
+├── 📁 relatorio/
+│   └── Relatorio_Final_BanVic.pdf     # Documento executivo
+├── 📁 video/
+│   └── [Link para Google Drive]        # Vídeo explicativo
 └── README.md
 ```
 
-## 📈 Entregas
+## 📊 Principais Descobertas
 
-1. **Análise Exploratória**: entender os dados e construir argumentos para o negócio.
-2. **KPIs**: métricas de volume, valor e tempo.
-3. **Dimensão de Datas**: base para análises temporais (dias, meses pares vs ímpares, sazonalidade).
-4. **Dados Externos**: integração com a cotação do dólar e sugestões de outras fontes públicas.
-5. **Ranking de Agências**: top 3 e bottom 3 em volume de transações nos últimos 6 meses.
-6. **Relatório Executivo (PDF)**: resultados consolidados, insights e recomendações.
-7. **Vídeo Explicativo**: passo a passo do projeto.
-   🎥 **[Link do Vídeo](INSERIR_LINK_AQUI)**
+### ⚡ **INSIGHT CRÍTICO**: Problema Operacional Grave
+> **Só 3 de 10 agências estão ativas!**
+>
+> Em 2023, apenas 3 agências do BanVic registraram transações. A **Agência Digital** concentra 70% das operações, sinal de dependência excessiva e de falhas graves nas unidades físicas.
 
-## 🔍 Principais Insights
+### 📈 Padrões Temporais
 
-### Padrões no Tempo
+**🎯 Dia Mais Forte da Semana**
+- Sexta-feira é o pico de transações  
+- **Oportunidade**: Intensificar campanhas de fim de semana  
 
-* **Dia Mais Forte da Semana:** A análise confirma que a **sexta-feira** é o dia com o maior pico de transações, sugerindo uma oportunidade para focar campanhas de marketing e ofertas no início do fim de semana.
+**📅 Sazonalidade Mensal**
+- Diferenças claras entre meses pares e ímpares  
+- Padrões úteis para planejamento de ações  
 
-    ![Gráfico de transações por dia da semana](img/dia_forte.png)
+### 🏪 Ranking de Performance das Agências
 
-* **Meses Pares vs. Ímpares:** A hipótese de que meses pares geram mais volume foi analisada para entender a sazonalidade do comportamento dos clientes.
+**🏆 TOP 3 Agências (2º Sem/2023)**
+1. **Agência Digital** – liderança isolada  
+2. **Agência Matriz** – boa performance  
+3. **Agência Centro** – terceira colocada  
 
-    ![Gráfico de comparação entre meses pares e ímpares](img/pares_impares.png)
+**⚠️ Agências Inativas**
+- 7 agências sem nenhuma transação  
+- **Requer investigação imediata**  
 
-### Performance das Agências
+### 💱 Dados Externos
 
-* **Agências Ativas (2º Semestre de 2023):** O insight mais crítico da análise é que **apenas 3 de 10 agências** registraram atividade no último semestre de 2023. A Agência Digital domina completamente as operações, indicando um risco de centralização e a necessidade urgente de investigar a inatividade das outras 7 agências.
+**Dólar vs Transações**
+- Correlação baixa  
+- Outros fatores impactam mais  
 
-    ![Ranking das 3 agências com maior atividade](img/agencias_top3.png)
+**📋 Fontes Úteis para Expansão**
+- **IBGE**: dados demográficos  
+- **IPEA**: indicadores econômicos  
+- **SERASA**: crédito do mercado  
+- **BACEN**: informações do sistema financeiro  
 
-* **As Piores Agências:** As 7 piores agências são aquelas que **não registraram nenhuma transação** no período, apresentando um desempenho nulo.
+## 💼 Valor para o Negócio
 
-### Dados Externos
+### Para a CEO Sofia Oliveira:
+- ✅ Panorama claro das operações  
+- ✅ Riscos críticos identificados  
+- ✅ Base confiável para investimentos  
 
-* **Correlação Dólar x Transações:** A análise de dispersão não mostrou uma correlação linear forte entre a cotação do dólar e o volume de transações, indicando que outros fatores de mercado têm maior influência.
+### Para a Diretora Camila Diniz:
+- ✅ Segmentação temporal para campanhas  
+- ✅ ROI mensurável por agência/região  
+- ✅ Decisões baseadas em dados, não só intuição  
 
-    ![Gráfico de dispersão entre dólar e transações](img/dolar_transacoes.png)
+### Para o Diretor André Tech:
+- ✅ Relatórios automatizados  
+- ✅ Monitoramento em tempo real  
+- ✅ Estrutura técnica para expansão  
 
-* **Outras Fontes Sugeridas:**
-    * **IBGE:** Dados demográficos por cidade/estado para enriquecer o perfil dos clientes e identificar mercados com potencial de expansão.
-    * **IPEA:** Indicadores macroeconômicos (inflação, desemprego) para contextualizar o volume de crédito e a inadimplência.
+## 🎯 Recomendações Estratégicas
 
-## 💡 Conclusões
+### 🚨 **Curto Prazo - Agências Inativas**
+1. Investigar as 7 agências sem atividade  
+2. Definir plano de reativação ou fechamento  
+3. Redirecionar recursos de baixa produtividade  
 
-Os dados mostram oportunidades claras para o BanVic:
+### 📊 **Médio Prazo - BI Estruturado**
+1. Criar dashboard executivo permanente  
+2. Automatizar coleta de dados externos  
+3. Treinar times em cultura data-driven  
 
-* **Operações mais eficientes** ao entender padrões de tempo
-* **Recursos melhor alocados** entre agências
-* **Decisões mais sólidas** com base em dados externos
-* **Campanhas mais assertivas** com foco em clientes e produtos certos
+### 🎯 **Longo Prazo - Expansão**
+1. Ampliar fontes de dados  
+2. Desenvolver modelos preditivos  
+3. Implementar segmentações avançadas 
 
-Esse piloto deixa claro que investir em BI traz retorno mensurável e fortalece a estratégia do banco.
+**🎬 [Vídeo Explicativo](https://drive.google.com/file/d/10_6z3deDBhSuf5CYuMhbJ83QmQmzDEhN/view)**
 
-## 📋 Como Reproduzir
 
-1. Clone o repositório
-2. Instale as dependências:
+## 🚀 Como Reproduzir Este Projeto
 
-   ```bash
-   pip install pandas matplotlib seaborn requests
-   ```
-3. Rode o notebook `01_analise_exploratoria.ipynb`
-4. Abra o dashboard `Dashboard_BanVic.pbix` no Power BI
-5. Consulte o relatório final em PDF
+### 1. **Setup do Ambiente**
+```bash
+# Clone o repositório
+git clone https://github.com/DevNayaraVieiraa/LH_EA_NAYARA_VIEIRA.git
 
----
-
-**Autora**: Nayara Vieira
-**Data**: Setembro/2025
-**Contexto**: Desafio de Engenharia de Analytics - Lighthouse Program
+# Instale dependências
+pip install pandas matplotlib seaborn requests sqlite3
